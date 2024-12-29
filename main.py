@@ -85,23 +85,81 @@ def print_policy(policy):
         print("\n")
 
 
+def policy_evaluation(policy, reward):
+    """Evaluates a given policy by iteratively updating the state values."""
+    grid = [[reward, -1, 10],
+            [-1, -1, -1],
+            [-1, -1, -1]]
+    while(True):
+        diff = 0
+        new_grid = [[reward, -1, 10],
+                    [-1, -1, -1],
+                    [-1, -1, -1]]
+        for r in range(grid_size):
+            for c in range(grid_size):
+                if r == 0 and (c == 0 or c == 2):  # Skip terminal states
+                    continue
+                action = policy[r, c]
+                new_grid[r][c] = bellman(grid, r, c, action)
+                diff = max(diff, abs(new_grid[r][c] - grid[r][c]))
+        grid = new_grid
+        if diff < convergence:
+            break
+    return grid
 
 
 
 
 
+def policy_iteration(reward):
+    """Performs policy iteration to find the optimal policy."""
+    # Initialize random policy
+    policy = np.random.randint(0, 4, size=(grid_size, grid_size))
+    print("Initial Random Policy:")
+    print_policy(policy)
+
+    iterations = 0
+    while True:
+        iterations += 1
+        # Step 1: Policy Evaluation
+        grid = policy_evaluation(policy, reward)
+        
+        # Step 2: Policy Improvement
+        new_policy = optimal_policy(grid)
+        
+        print(f"Policy after iteration {iterations}:")
+        print_policy(new_policy)
+        
+        # Check for convergence
+        if np.array_equal(policy, new_policy):
+            break
+        policy = new_policy
+
+    return policy, grid, iterations
 
 
+# Run Value Iteration
+print("____________________________________________\n\nVALUE ITERATION\n\n")
 rewards = [100, 3, 0, -3]
 for r in rewards:
     grid = [[r, -1, 10],
             [-1, -1, -1],
             [-1, -1, -1]]
-    print (f"Reward: {r}")
-    print("initial grid:")
+    print(f"Reward: {r}")
+    print("Initial grid:")
     print_grid(grid)
     grid, iterations = valueIteration(grid, r)
-    print("converges in iteration", iterations)
-    policy=optimal_policy(grid)
-    print("optimal policy:")
+    print("Converges in iteration", iterations)
+    policy = optimal_policy(grid)
+    print("Optimal policy:")
     print_policy(policy)
+
+# Run Policy Iteration
+print("____________________________________________\n\nPOLICY ITERATION\n\n")
+for r in rewards:
+    print(f"Reward: {r}")
+    optimal_policy_result, value_grid, iterations = policy_iteration(r)
+    print(f"Optimal Policy (Converged in {iterations} iterations):")
+    print_policy(optimal_policy_result)
+    print("Final Value Grid:")
+    print_grid(value_grid)
