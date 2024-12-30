@@ -4,15 +4,15 @@ import numpy as np
 grid_size = 3
 num_states = grid_size * grid_size
 gamma = 0.99  # Discount factor
-Actions = [(1, 0), (0, -1), (-1, 0), (0, 1)]
+Actions = [(1, 0), (0, -1), (-1, 0), (0, 1)] #down,left,up,right
 convergence = 1e-3
 
 
 def bellman(grid, r, c, action):
     value = -1
-    value += 0.1 * gamma * next_state(grid, r, c, (action - 1) % 4)  # right
+    value += 0.1 * gamma * next_state(grid, r, c, (action - 1) % 4)  # left
     value += 0.8 * gamma * next_state(grid, r, c, action)
-    value += 0.1 * gamma * next_state(grid, r, c, (action + 1) % 4)  # left
+    value += 0.1 * gamma * next_state(grid, r, c, (action + 1) % 4)  # right
     return value
 
 
